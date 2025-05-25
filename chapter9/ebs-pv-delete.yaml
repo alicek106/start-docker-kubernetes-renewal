@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ebs-pv-delete
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  csi:
+    driver: ebs.csi.aws.com
+    fsType: ext4
+    volumeHandle: <VOLUME_ID>
+  persistentVolumeReclaimPolicy: Delete
+

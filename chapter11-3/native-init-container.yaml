@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: native-sidecar-example
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+  initContainers:
+  - name: my-native-sidecar-container
+    image: busybox
+    command: ['sh', '-c', 'tail -f /dev/null']
+    restartPolicy: Always

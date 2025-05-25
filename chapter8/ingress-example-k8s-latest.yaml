@@ -1,0 +1,21 @@
+# 이 파일은 2025년 5월 책 개정판 (쿠버네티스 1.32 버전) 을 기준으로 작성되었습니다.
+# 이전 버전을 사용할 경우 이전 커밋 파일을 참고해주세요.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-example
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: alicek106.example.com                   # [1]
+    http:
+      paths:
+      - path: /echo-hostname                     # [2]
+        pathType: Prefix
+        backend: 
+          service: 
+            name: hostname-service               # [3]
+            port: 
+              number: 80
