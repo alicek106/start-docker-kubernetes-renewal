@@ -1,7 +1,7 @@
 # Worker node setting
 resource "aws_instance" "worker" {
   count                       = var.number_of_worker
-  ami                         = var.instance_ami
+  ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.worker_instance_type
   iam_instance_profile        = aws_iam_instance_profile.worker.id
   subnet_id                   = aws_subnet.kubeadm_subnet.id
@@ -23,7 +23,7 @@ resource "aws_instance" "worker" {
 
 # Master node setting
 resource "aws_instance" "master" {
-  ami                         = var.instance_ami
+  ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.master_instance_type
   iam_instance_profile        = aws_iam_instance_profile.master.id
   subnet_id                   = aws_subnet.kubeadm_subnet.id

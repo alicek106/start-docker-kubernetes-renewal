@@ -86,8 +86,5 @@ variable "worker_instance_type" {
   default     = "t2.medium"
 }
 
-variable "instance_ami" {
-  description = "AMI ID for EC2 instances"
-  type        = string
-  default     = "ami-067c32f3d5b9ace91"
-}
+# AMI is now automatically selected using data source for Ubuntu 24.04 LTS
+# See data.tf for AMI selection logic
