@@ -86,5 +86,24 @@ variable "worker_instance_type" {
   default     = "t2.medium"
 }
 
+# Kubernetes Configuration
+variable "kubernetes_version" {
+  description = "Kubernetes version to install"
+  type        = string
+  default     = "1.32.0-1.1"
+}
+
+variable "initialize_kubeadm" {
+  description = "Whether to automatically initialize Kubernetes cluster"
+  type        = bool
+  default     = true
+}
+
+variable "pod_subnet" {
+  description = "Pod network CIDR for Kubernetes cluster"
+  type        = string
+  default     = "192.168.0.0/16"
+}
+
 # AMI is now automatically selected using data source for Ubuntu 24.04 LTS
 # See data.tf for AMI selection logic

@@ -1,3 +1,37 @@
+# Random token for kubeadm bootstrap
+resource "random_string" "token_id" {
+  length  = 6
+  special = false
+  upper   = false
+}
+
+resource "random_string" "token_secret" {
+  length  = 16
+  special = false
+  upper   = false
+}
+
+locals {
+  token = "${random_string.token_id.result}.${random_string.token_secret.result}"
+  
+  master_userdata = var.initialize_kubeadm ? templatefile("scripts/master.sh", {
+    kubernetes_version = var.kubernetes_version
+    master_config = templatefile("scripts/master.yaml", {
+      token       = local.token
+      pod_subnet  = var.pod_subnet
+    })
+  }) : ""
+  
+  worker_userdata = var.initialize_kubeadm ? templatefile("scripts/worker.sh", {
+    kubernetes_version = var.kubernetes_version
+    apiserver_ip       = aws_instance.master.private_ip
+    worker_config = templatefile("scripts/worker.yaml", {
+      token        = local.token
+      apiserver_ip = aws_instance.master.private_ip
+    })
+  }) : ""
+}
+
 # Worker node setting
 resource "aws_instance" "worker" {
   count                       = var.number_of_worker
@@ -18,6 +52,10 @@ resource "aws_instance" "worker" {
       Name = "kubeadm_worker${count.index}"
     }
   )
+  
+  user_data = local.worker_userdata
+  
+  depends_on = [aws_instance.master]
 }
 
 # Master node setting
@@ -39,4 +77,6 @@ resource "aws_instance" "master" {
       Name = "kubeadm_master"
     }
   )
+  
+  user_data = local.master_userdata
 }
