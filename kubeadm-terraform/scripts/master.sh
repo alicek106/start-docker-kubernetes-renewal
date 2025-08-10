@@ -1,8 +1,5 @@
 #!/bin/bash -xe
 
-# Wait for cloud-init to complete
-cloud-init status --wait
-
 # Kernel modules for Kubernetes
 cat > /etc/modules-load.d/k8s.conf << '__EOF_MODULES'
 overlay

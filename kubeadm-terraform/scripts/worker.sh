@@ -1,8 +1,5 @@
 #!/bin/bash -xe
 
-# Wait for cloud-init to complete
-cloud-init status --wait
-
 # Kernel modules for Kubernetes
 cat > /etc/modules-load.d/k8s.conf << '__EOF_MODULES'
 overlay
@@ -102,7 +99,49 @@ __EOF_KUBEADM
 # Replace placeholder with actual hostname
 sed -i "s/NODE_HOSTNAME/$HOSTNAME/g" /tmp/worker.yaml
 
-# Join the cluster
-kubeadm join --config /tmp/worker.yaml
+# Join the cluster with retry logic
+MAX_RETRIES=10
+RETRY_INTERVAL=30
+RETRY_COUNT=0
 
-echo "Worker node joined successfully!"
+echo "Starting cluster join process..."
+
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+  echo "Attempting to join cluster (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)..."
+  
+  if kubeadm join --config /tmp/worker.yaml; then
+    echo "Successfully joined the cluster!"
+    
+    # Verify kubelet is running
+    echo "Verifying kubelet service..."
+    if systemctl is-active --quiet kubelet; then
+      echo "Kubelet service is running"
+    else
+      echo "Warning: Kubelet service is not running, attempting to start..."
+      systemctl start kubelet
+      sleep 10
+    fi
+    
+    echo "Worker node joined successfully!"
+    exit 0
+  else
+    echo "Join attempt failed"
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    
+    if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+      echo "Waiting ${RETRY_INTERVAL} seconds before retry..."
+      echo "Debug: Checking API server connectivity..."
+      curl -k --connect-timeout 5 https://${apiserver_ip}:6443/healthz || echo "API server not responding"
+      sleep $RETRY_INTERVAL
+    else
+      echo "ERROR: Failed to join cluster after $MAX_RETRIES attempts"
+      echo "Debug information:"
+      echo "- API server: ${apiserver_ip}:6443" 
+      echo "- Kubelet status:"
+      systemctl status kubelet --no-pager || true
+      echo "- Container runtime status:"
+      systemctl status containerd --no-pager || true
+      exit 1
+    fi
+  fi
+done
