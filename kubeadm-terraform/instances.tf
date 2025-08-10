@@ -3,7 +3,7 @@ resource "aws_instance" "worker" {
   count                       = var.number_of_worker
   ami                         = var.instance_ami
   instance_type               = var.worker_instance_type
-  iam_instance_profile        = aws_iam_instance_profile.worker_instance_profile.id
+  iam_instance_profile        = aws_iam_instance_profile.worker.id
   subnet_id                   = aws_subnet.kubeadm_subnet.id
   private_ip                  = cidrhost(var.vpc_cidr, 30 + count.index)
   associate_public_ip_address = true
@@ -14,10 +14,10 @@ resource "aws_instance" "worker" {
 
   tags = merge(
     local.common_tags,
-    map(
-      "Owner", var.owner,
-      "Name", "kubeadm_worker${count.index}",
-    )
+    {
+      Owner = var.owner
+      Name  = "kubeadm_worker${count.index}"
+    }
   )
 }
 
@@ -25,7 +25,7 @@ resource "aws_instance" "worker" {
 resource "aws_instance" "master" {
   ami                         = var.instance_ami
   instance_type               = var.master_instance_type
-  iam_instance_profile        = aws_iam_instance_profile.master_instance_profile.id
+  iam_instance_profile        = aws_iam_instance_profile.master.id
   subnet_id                   = aws_subnet.kubeadm_subnet.id
   private_ip                  = cidrhost(var.vpc_cidr, 10)
   associate_public_ip_address = true
@@ -36,9 +36,9 @@ resource "aws_instance" "master" {
 
   tags = merge(
     local.common_tags,
-    map(
-      "Owner", var.owner,
-      "Name", "kubeadm_master",
-    )
+    {
+      Owner = var.owner
+      Name  = "kubeadm_master"
+    }
   )
 }

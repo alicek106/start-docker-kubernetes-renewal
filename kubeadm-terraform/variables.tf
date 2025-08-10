@@ -1,71 +1,93 @@
 # Global tag
 locals {
-  common_tags = map(
-    "kubernetes.io/cluster/${var.cluster_id_tag}", "${var.cluster_id_value}"
-  )
+  common_tags = {
+    "kubernetes.io/cluster/${var.cluster_id_tag}" = var.cluster_id_value
+  }
 }
 
 # You can adjust below variables
-variable default_keypair_name {
-  default = "mysshkey"
+variable "default_keypair_name" {
+  description = "AWS key pair name for SSH access"
+  type        = string
+  default     = "mysshkey"
 }
 
-variable number_of_worker {
+variable "number_of_worker" {
   description = "The number of worker nodes"
+  type        = number
   default     = 1
 }
 
-variable cluster_id_tag {
+variable "cluster_id_tag" {
   description = "Cluster ID tag for kubeadm"
+  type        = string
   default     = "alice"
 }
 
-variable cluster_id_value {
+variable "cluster_id_value" {
   description = "Cluster ID value, it can be shared or owned"
+  type        = string
   default     = "owned"
 }
 
-variable control_cidr {
+variable "control_cidr" {
   description = "CIDR of security group"
+  type        = string
   default     = "0.0.0.0/0"
 }
 
-variable owner {
-  default = "alicek106"
+variable "owner" {
+  description = "Owner of the resources"
+  type        = string
+  default     = "alicek106"
 }
 
-variable region {
-  default = "ap-northeast-2"
+variable "region" {
+  description = "AWS region"
+  type        = string
+  default     = "ap-northeast-2"
 }
 
-variable zone {
-  default = "ap-northeast-2a"
+variable "zone" {
+  description = "AWS availability zone"
+  type        = string
+  default     = "ap-northeast-2a"
 }
-
 
 # VPC Settings
-variable vpc_cidr {
-  default = "10.40.0.0/16"
+variable "vpc_cidr" {
+  description = "CIDR block for VPC"
+  type        = string
+  default     = "10.40.0.0/16"
 }
 
-variable vpc_name {
+variable "vpc_name" {
   description = "Name of the VPC"
+  type        = string
   default     = "kubeadm_vpc"
 }
 
-variable subnet_name {
+variable "subnet_name" {
   description = "Name of the Subnet"
+  type        = string
   default     = "kubeadm_subnet"
 }
 
 # Instance Types
-variable master_instance_type {
-  default = "t2.medium"
-}
-variable worker_instance_type {
-  default = "t2.medium"
+variable "master_instance_type" {
+  description = "EC2 instance type for master node"
+  type        = string
+  default     = "t2.medium"
 }
 
-variable instance_ami {
-  default = "ami-067c32f3d5b9ace91"
+variable "worker_instance_type" {
+  description = "EC2 instance type for worker nodes"
+  type        = string
+  default     = "t2.medium"
+}
+
+variable "instance_ami" {
+  description = "AMI ID for EC2 instances"
+  type        = string
+  default     = "ami-067c32f3d5b9ace91"
 }
