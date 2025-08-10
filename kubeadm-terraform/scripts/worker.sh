@@ -129,7 +129,7 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
     RETRY_COUNT=$((RETRY_COUNT + 1))
     
     if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-      echo "Waiting ${RETRY_INTERVAL} seconds before retry..."
+      echo "Waiting $RETRY_INTERVAL seconds before retry..."
       echo "Debug: Checking API server connectivity..."
       curl -k --connect-timeout 5 https://${apiserver_ip}:6443/healthz || echo "API server not responding"
       sleep $RETRY_INTERVAL
