@@ -22,6 +22,7 @@ resource "aws_subnet" "kubeadm_subnet" {
     local.common_tags,
     {
       Name = var.subnet_name
+      "kubernetes.io/role/elb" = "1"
     }
   )
 }
