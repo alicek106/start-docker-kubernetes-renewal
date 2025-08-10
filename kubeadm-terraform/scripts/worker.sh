@@ -73,7 +73,7 @@ wget https://github.com/opencontainers/runc/releases/download/v$RUNC_VERSION/run
 install -m 755 runc.amd64 /usr/local/sbin/runc
 
 # Install CNI plugins
-CNI_VERSION="1.6.1"
+CNI_VERSION="1.6.2"
 wget https://github.com/containernetworking/plugins/releases/download/v$CNI_VERSION/cni-plugins-linux-amd64-v$CNI_VERSION.tgz
 mkdir -p /opt/cni/bin
 tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v$CNI_VERSION.tgz
