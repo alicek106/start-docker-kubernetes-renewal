@@ -15,8 +15,7 @@ resource "aws_instance" "worker" {
   tags = merge(
     local.common_tags,
     {
-      Owner = var.owner
-      Name  = "kubeadm_worker${count.index}"
+      Name = "kubeadm_worker${count.index}"
     }
   )
 }
@@ -37,8 +36,7 @@ resource "aws_instance" "master" {
   tags = merge(
     local.common_tags,
     {
-      Owner = var.owner
-      Name  = "kubeadm_master"
+      Name = "kubeadm_master"
     }
   )
 }

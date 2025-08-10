@@ -7,8 +7,7 @@ resource "aws_vpc" "kubeadm_vpc" {
   tags = merge(
     local.common_tags,
     {
-      Name  = var.vpc_name
-      Owner = var.owner
+      Name = var.vpc_name
     }
   )
 }
@@ -22,8 +21,7 @@ resource "aws_subnet" "kubeadm_subnet" {
   tags = merge(
     local.common_tags,
     {
-      Name  = var.subnet_name
-      Owner = var.owner
+      Name = var.subnet_name
     }
   )
 }
@@ -35,8 +33,7 @@ resource "aws_internet_gateway" "kubeadm_gw" {
   tags = merge(
     local.common_tags,
     {
-      Name  = "kubeadm_gw"
-      Owner = var.owner
+      Name = "kubeadm_gw"
     }
   )
 }
@@ -53,8 +50,7 @@ resource "aws_route_table" "kubeadm_routing" {
   tags = merge(
     local.common_tags,
     {
-      Name  = "kubeadm_routing"
-      Owner = var.owner
+      Name = "kubeadm_routing"
     }
   )
 }
@@ -100,8 +96,7 @@ resource "aws_security_group" "kubeadm_sg" {
   tags = merge(
     local.common_tags,
     {
-      Name  = "kubeadm_sg"
-      Owner = var.owner
+      Name = "kubeadm_sg"
     }
   )
 }
