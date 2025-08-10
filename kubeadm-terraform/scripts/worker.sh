@@ -78,9 +78,35 @@ wget https://github.com/containernetworking/plugins/releases/download/v$CNI_VERS
 mkdir -p /opt/cni/bin
 tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v$CNI_VERSION.tgz
 
-# Set hostname using AWS metadata
-HOSTNAME=$(curl -s http://169.254.169.254/latest/meta-data/local-hostname)
-hostnamectl set-hostname $HOSTNAME
+# Set hostname using AWS metadata (IMDSv2)
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" 2>/dev/null)
+if [ -n "$TOKEN" ]; then
+  HOSTNAME=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-hostname 2>/dev/null)
+else
+  # Fallback to IMDSv1 if v2 fails
+  HOSTNAME=$(curl -s http://169.254.169.254/latest/meta-data/local-hostname 2>/dev/null)
+fi
+
+# Validate hostname and set it
+if [ -n "$HOSTNAME" ] && [[ "$HOSTNAME" != *"<"* ]] && [[ "$HOSTNAME" != *"401"* ]]; then
+  hostnamectl set-hostname "$HOSTNAME"
+  echo "Hostname set to: $HOSTNAME"
+else
+  # Use instance ID as fallback
+  if [ -n "$TOKEN" ]; then
+    INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null)
+  else
+    INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null)
+  fi
+  
+  if [ -n "$INSTANCE_ID" ] && [[ "$INSTANCE_ID" != *"<"* ]]; then
+    hostnamectl set-hostname "worker-$INSTANCE_ID"
+    echo "Hostname set to: worker-$INSTANCE_ID"
+  else
+    hostnamectl set-hostname "kubeadm-worker"
+    echo "Using fallback hostname: kubeadm-worker"
+  fi
+fi
 
 # Wait for master API server to be ready
 echo "Waiting for master API server at ${apiserver_ip}:6443..."
@@ -97,7 +123,8 @@ ${worker_config}
 __EOF_KUBEADM
 
 # Replace placeholder with actual hostname
-sed -i "s/NODE_HOSTNAME/$HOSTNAME/g" /tmp/worker.yaml
+CURRENT_HOSTNAME=$(hostname)
+sed -i "s/NODE_HOSTNAME/$CURRENT_HOSTNAME/g" /tmp/worker.yaml
 
 # Join the cluster with retry logic
 MAX_RETRIES=10
