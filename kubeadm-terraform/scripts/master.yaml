@@ -4,7 +4,8 @@ kubernetesVersion: v1.32.0
 clusterName: kubernetes
 apiServer:
   extraArgs:
-    authorization-mode: Node,RBAC
+  - name: authorization-mode
+    value: Node,RBAC
 certificatesDir: /etc/kubernetes/pki
 controllerManager: {}
 etcd:
