@@ -131,7 +131,7 @@ cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
 chown ubuntu:ubuntu /home/ubuntu/.kube/config
 
 # Wait for API server to be ready
-until kubectl get nodes &>/dev/null; do
+until curl -k --silent --fail https://localhost:6443/healthz; do
   echo "Waiting for API server..."
   sleep 5
 done
